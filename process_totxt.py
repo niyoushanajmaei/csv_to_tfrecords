@@ -65,6 +65,7 @@ def clean(df):
     df["description_en"] = df["description_en"].apply(erase_tags)
     df["description_en"] = df["description_en"].apply(separate_words)
     df = add_features(df)
+
     return df
 
 def erase_tags(str):
@@ -205,27 +206,34 @@ def write(df, type):
         path = dir+"test_text/"
     ref_path = "/Users/niyoush/dataset/test_text_ref/"
     c=0
+    data= df.to_dict('index')
     if type == "test":
         #write the test set with and without the lables to have a reference
-        data= df.to_dict('index')
         for k,v in data.items():
-            with open(ref_path+"product"+str(c)+".txt", 'w') as f:
-                print(v, file=f)
-                c+=1
-        df["description_en"] = ""
+            write_dict(v,ref_path+"product"+str(c)+".txt","n")
+            c+=1
         c=0
-        data= df.to_dict('index')
         for k,v in data.items():
-            with open(path+"product"+str(c)+".txt", 'w') as f:
-                print(v, file=f)
-                c+=1 
+            write_dict(v,path+"product"+str(c)+".txt","t")
+            c+=1 
     else :
-        data= df.to_dict('index')
         for k,v in data.items():
-            with open(path+"product"+str(c)+".txt", 'w') as f:
-                print(v, file=f)
-                c+=1
+            write_dict(v,path+"product"+str(c)+".txt","n")
+            c+=1
     print("writing "+type+ " successful")
+
+# writes the file with format:
+# when type in "n" for normal
+# {"tag1" : "value1", "tag2": "value2", ....} \n description: "description_en" \n ### \n
+# when type is "t" for test
+# {"tag1" : "value1", "tag2": "value2", ....} \n description: 
+def write_dict(dict, path, type):
+    desc = dict.pop("description_en", None)
+    with open(path, 'w') as f:
+        txt = str(dict) + "\ndescription: "
+        if type == "n":
+            txt += desc + "\n###\n"
+        print(txt,file =f)
 
 def test_write(df):
     dir ="/Users/niyoush/dataset/train_text/"
@@ -237,6 +245,11 @@ def test_write(df):
             c+=1
     print("writing successful")
 
+def df_stat(df):
+    df["desc_len"] =df['description_en'].apply(lambda x: len(x))
+    print(df["desc_len"].describe())
+    # the third quartile of the length of the descriptions is 210
 
 write_as_txt(read_batch())
 #test_write(read_csv())
+#df_stat(read_batch())
