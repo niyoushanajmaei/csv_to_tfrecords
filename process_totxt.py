@@ -62,10 +62,8 @@ def clean(df):
             to_drop.append(col)
     df.drop(to_drop, inplace=True, axis=1)
     df.drop(df[df.description_en==""].index, inplace=True)
-    df["description_en"] = df["description_en"].apply(erase_tags)
-    df["description_en"] = df["description_en"].apply(separate_words)
+    df["description_en"] = df["description_en"].apply(erase_tags).apply(separate_words).apply(remove_spaces)
     df = add_features(df)
-
     return df
 
 def erase_tags(str):
@@ -73,6 +71,9 @@ def erase_tags(str):
 
 def separate_words(str):
     return re.sub(r"(\w)([A-Z])", r"\1 \2", str)
+
+def remove_spaces(str):
+    return re.sub(r"\s+", " ",str)
 
 def add_features(df):
     to_delete=[]
@@ -88,7 +89,7 @@ def add_features(df):
             
             if "sunglasses" in desc_procs:
                 dim = False
-                if "uv" in desc_procs:
+                if "uv" in desc_procs or "protection" in desc_procs:
                     row["uv"] = True
                 if "anti-reflective" in desc_procs:
                     row["anti-reflective"] = True
