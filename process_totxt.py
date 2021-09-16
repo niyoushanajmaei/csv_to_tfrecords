@@ -66,14 +66,14 @@ def clean(df):
     df = add_features(df)
     return df
 
-def erase_tags(str):
-    return lxml.html.fromstring(str).text_content()
+def erase_tags(st):
+    return lxml.html.fromstring(st).text_content()
 
-def separate_words(str):
-    return re.sub(r"(\w)([A-Z])", r"\1 \2", str)
+def separate_words(st):
+    return re.sub(r"(\w)([A-Z])", r"\1 \2", st)
 
-def remove_spaces(str):
-    return re.sub(r"\s+", " ",str)
+def remove_spaces(st):
+    return re.sub(r"\s+", " ",st)
 
 def add_features(df):
     to_delete=[]
@@ -82,6 +82,8 @@ def add_features(df):
         # The possible words are separated after removing the punctuations
         desc_procs = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation))
         desc_procs = separate_words(desc_procs)
+        if len(desc_procs) < 30 :
+            to_delete.append(index)
         try:
             if "material" in desc_procs:
                 i = desc_procs.split().index("material")   
@@ -206,31 +208,34 @@ def write_as_txt(df):
    write(validate,"validate")
    write(test,"test")
 
-def write(df, type):
+def write(df, t):
     dir ="/Users/niyoush/dataset/"
-    if type=="train":
+    if t=="train":
         path = dir+"train_text/"
-    elif type=="validate":
+    elif t=="validate":
         path = dir+"val_text/"
-    elif type=="test":
+    elif t=="test":
         path = dir+"test_text/"
     ref_path = "/Users/niyoush/dataset/test_text_ref/"
     c=0
     data= df.to_dict('index')
-    if type == "test":
+    if t == "test":
         #write the test set with and without the lables to have a reference
-        for k,v in data.items():
-            write_dict(v,ref_path+"product"+str(c)+".txt","n")
+        for k,value in data.items():
+            value = {k:v for k,v in value.items() if v!= '' or v.strip() != ''}
+            write_dict(value,ref_path+"product"+str(c)+".txt","n")
             c+=1
         c=0
         for k,v in data.items():
-            write_dict(v,path+"product"+str(c)+".txt","t")
+            value = {k:v for k,v in value.items() if v!= '' or v.strip() != ''}
+            write_dict(value,path+"product"+str(c)+".txt","t")
             c+=1 
     else :
-        for k,v in data.items():
-            write_dict(v,path+"product"+str(c)+".txt","n")
+        for k,value in data.items():
+            value = {k:v for k,v in value.items() if v!= '' or v.strip() != ''}
+            write_dict(value,path+"product"+str(c)+".txt","n")
             c+=1
-    print("writing "+type+ " successful")
+    print("writing "+t+ " successful")
 
 # writes the file with format:
 # when type in "n" for normal
