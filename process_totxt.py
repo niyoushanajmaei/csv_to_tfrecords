@@ -1,5 +1,5 @@
-#To process the raw data remove the unnecessary tags and add useful ones 
-#that are used in the description
+# To process the raw data remove the unnecessary tags and add useful ones 
+# that are used in the description
 
 import pandas as pd
 from pandas import read_excel
@@ -75,122 +75,131 @@ def separate_words(str):
     return re.sub(r"(\w)([A-Z])", r"\1 \2", str)
 
 def add_features(df):
+    to_delete=[]
     for index, row in df.iterrows():
+        # A version of the description, all low case, all punctuations removed
+        # The possible words are separated after removing the punctuations
+        desc_procs = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation))
+        desc_procs = separate_words(desc_procs)
         try:
-            if "material" in row["description_en"].lower():
-                i = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("material")   
-                row["material"] = row["description_en"].split()[i+1]
+            if "material" in desc_procs:
+                i = desc_procs.split().index("material")   
+                row["material"] = desc_procs.split()[i+1]
             
-            if "sunglasses" in row["description_en"].lower():
+            if "sunglasses" in desc_procs:
                 dim = False
-                if "uv" in row["description_en"].lower():
+                if "uv" in desc_procs:
                     row["uv"] = True
-                if "anti-reflective" in row["description_en"].lower():
+                if "anti-reflective" in desc_procs:
                     row["anti-reflective"] = True
-                if "diameter" in row["description_en"].lower() :
-                    i = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("diameter")   
-                    d = row["description_en"].split()[i+1]
+                if "diameter" in desc_procs :
+                    i = desc_procs.split().index("diameter")   
+                    d = desc_procs.split()[i+1]
                     dim = True
-                if "width" in row["description_en"].lower(): 
-                    i = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("width")   
-                    w = row["description_en"].split()[i+1]
+                if "width" in desc_procs: 
+                    i = desc_procs.split().index("width")   
+                    w = desc_procs.split()[i+1]
                     dim = True
-                if "length" in row["description_en"].lower():
-                    i = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("length")   
-                    l = row["description_en"].split()[i+1]
+                if "length" in desc_procs:
+                    i = desc_procs.split().index("length")   
+                    l = desc_procs.split()[i+1]
                     dim = True
                 if dim:
                     row["dimensions"] = d +", "+w +", "+l +", "
 
 
-            if "eau de toilette" in row["description_en"].lower():
+            if "eau de toilette" in desc_procs:
                 dim = False
-                if "spray" in row["description_en"].lower():
+                if "spray" in desc_procs:
                     row["spray"] = True
-                if "ml" in row["description_en"].lower():
-                    i = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("ml")   
-                    v = row["description_en"].split()[i-1]
+                if "ml" in desc_procs:
+                    i = desc_procs.split().index("ml")   
+                    v = desc_procs.split()[i-1]
                     dim = True
                 if dim:
                     row["dimensions"] = v
 
-            if "shoes" in row["description_en"].lower():
-                if "leather" in row["description_en"].lower():
+            if "shoes" in desc_procs:
+                if "leather" in desc_procs:
                     row["material"] = "leather"
-                if "sole" in row["description_en"].lower():
-                    i = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("sole")   
-                    row["sole"] = row["description_en"].split()[i-1]
-                if "heel" in row["description_en"].lower():
-                    i = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("heel")   
-                    row["heel"] = row["description_en"].split()[i-1]
+                if "sole" in desc_procs:
+                    i = desc_procs.split().index("sole")   
+                    row["sole"] = desc_procs.split()[i-1]
+                if "heel" in desc_procs:
+                    i = desc_procs.split().index("heel")   
+                    row["heel"] = desc_procs.split()[i-1]
         
-            if "original box" in row["description_en"].lower():
+            if "original box" in desc_procs:
                 row["original_box"] = True
 
-            if "100%" in row["description_en"].lower():
-                i = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("100%")   
-                row["material"] = "100% "+ row["description_en"].split()[i+1]
+            if "100%" in desc_procs:
+                i = desc_procs.split().index("100%")   
+                row["material"] = "100% "+ desc_procs.split()[i+1]
             
-            if "wash" in row["description_en"].lower():
-                i = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("wash")   
-                row["wash"] = row["description_en"].split()[i+1]
+            if "wash" in desc_procs:
+                i = desc_procs.split().index("wash")   
+                row["wash"] = desc_procs.split()[i+1]
 
-            if "dimensions" in row["description_en"].lower():
-                i = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("dimensions")   
+            if "dimensions" in desc_procs:
+                i = desc_procs.split().index("dimensions")   
                 j = i+2
-                if "cm" in row["description_en"].lower():
-                    j = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("cm")   
-                if "mm" in row["description_en"].lower():
-                    j = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("mm")   
-                if "m" in row["description_en"].lower():
-                    j = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("m")   
-                row["dimensions"] = row["description_en"].split()[i+1:j]
+                if "cm" in desc_procs:
+                    j = desc_procs.split().index("cm")   
+                if "mm" in desc_procs:
+                    j = desc_procs.split().index("mm")   
+                if "m" in desc_procs:
+                    j = desc_procs.split().index("m")   
+                row["dimensions"] = desc_procs.split()[i+1:j]
 
-            if "size" in row["description_en"].lower():
-                i = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("size")   
+            if "size" in desc_procs:
+                i = desc_procs.split().index("size")   
                 j = i+2
-                if "cm" in row["description_en"].lower():
-                    j = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("cm")   
-                if "mm" in row["description_en"].lower():
-                    j = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("mm")   
-                if "m" in row["description_en"].lower():
-                    j = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("m")   
-                row["size"] = row["description_en"].split()[i+1:j]
+                if "cm" in desc_procs:
+                    j = desc_procs.split().index("cm")   
+                if "mm" in desc_procs:
+                    j = desc_procs.split().index("mm")   
+                if "m" in desc_procs:
+                    j = desc_procs.split().index("m")   
+                row["size"] = desc_procs.split()[i+1:j]
 
-            if "neck" in row["description_en"].lower():
-                    i = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("neck")   
-                    row["neck"] = row["description_en"].split()[i-1]
+            if "neck" in desc_procs:
+                    i = desc_procs.split().index("neck")   
+                    row["neck"] = desc_procs.split()[i-1]
 
-            if "sleeve" in row["description_en"].lower():
-                    i = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("sleeve")   
-                    row["sleeve"] = row["description_en"].split()[i-1]
+            if "sleeve" in desc_procs:
+                    i = desc_procs.split().index("sleeve")   
+                    row["sleeve"] = desc_procs.split()[i-1]
 
-            if "strap" in row["description_en"].lower():
-                    i = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("strap")   
-                    row["strap"] = row["description_en"].split()[i-1]
+            if "strap" in desc_procs:
+                    i = desc_procs.split().index("strap")   
+                    row["strap"] = desc_procs.split()[i-1]
             
-            if "handle" in row["description_en"].lower():
-                    i = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("handle")   
-                    row["handle"] = row["description_en"].split()[i-1]
+            if "handle" in desc_procs:
+                    i = desc_procs.split().index("handle")   
+                    row["handle"] = desc_procs.split()[i-1]
 
-            if "fit" in row["description_en"].lower():
-                    i = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("fit")   
-                    row["fit"] = row["description_en"].split()[i-1]
+            if "fit" in desc_procs:
+                    i = desc_procs.split().index("fit")   
+                    row["fit"] = desc_procs.split()[i-1]
             
-            if "model" in row["description_en"].lower():
-                i = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("model")   
+            if "model" in desc_procs:
+                i = desc_procs.split().index("model")   
                 j = i+2
-                if "cm" in row["description_en"].lower():
-                    j = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation)).split().index("cm")   
-                    row["model"] = row["description_en"].split()[i+1:j]
+                if "cm" in desc_procs:
+                    j = desc_procs.split().index("cm")   
+                    row["model"] = desc_procs.split()[i+1:j]
         except:
-            #Does it matter? and why does this happen?
-            #yes it matters. happens because we need to add space between potential words
-            print("is in the string but not a separated word")
+            # Does it matter? and why does this happen?
+            # yes it matters. happens because we need to add space between potential words
+            # These instances will be deleted from the dataset
+            to_delete.append(index)
+    df = df.drop(to_delete,axis=0)
+    print(f"deleted {len(to_delete)} rows. remaining: {len(df.index)}")
     return df
 
 def write_as_txt(df):
-   #Split the data Train 60%, Val 20%, Test 20%
+   # Shuffle indices and split the data Train 60%, Val 20%, Test 20%
+   df = df.iloc[np.random.permutation(len(df))]
    train, validate, test = np.split(df.sample(frac=1), [int(.6*len(df)), int(.8*len(df))])
    write(train, "train")
    write(validate,"validate")
