@@ -3,29 +3,42 @@
 import os
 import pandas as pd
 import re
-import csv
+from pandas import ExcelWriter
+from openpyxl import Workbook
+from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE
 
-def show(test_dir,gen_dir,output_dir):
+def show(gen_dir,output_dir):
     c=0
-    df = pd.DataFrame(columns=["tags","generated-desc","list-desc"])
-    for path in os.listdir(test_dir):
-        full_path = os.path.join(test_dir, path)
-        if os.path.isfile(full_path):
+    columns=["tags","generated-desc"]
+    df = pd.DataFrame(columns=columns)
+    for path in os.listdir(gen_dir):
+        full_path = os.path.join(gen_dir, path)
+        if os.path.isfile(full_path) and re.search('product',full_path):
             with open(full_path,'r') as f:
-                test = f.read()
-            with open(os.path.join(output_dir, path)) as f:
-                output = f.read()
-            dict = re.search('({.+})', test).group(0)
-            desc = re.search('description\:.+$',test).group(0)
-            gen = re.search('description\:.+$',output).group(0)
-            df.append([dict,gen,desc])
+                gen = f.read()
+            #print(ref)
+            #print(gen)
+            feat = re.search('features\:.+description', gen).group(0)
+            gen = re.search('description\:.+\n',gen).group(0)
+            feat = clean_str(feat)
+            gen = clean_str(gen)
+            df = df.append({"tags":feat,"generated-desc":gen},ignore_index=True)
             c+=1
-    res = df.to_csv(index = True)
-    with open (output_dir + "results.csv",'w') as f:
-        csv.writer(f).writerows(res)
-        
-             
-test_dir = "/Users/niyoush/dataset_test_only/test/"
+
+        wb= Workbook()
+        ws=wb.active
+        with pd.ExcelWriter(output_dir+"results.xlsx", engine="openpyxl") as writer:
+            writer.book=wb
+            writer.sheets = dict((ws.title, ws) for ws in wb.worksheets)
+            df.to_excel(writer,index=False)
+            writer.save()
+    print("writing successful")
+
+
+def clean_str(st):
+    st = ILLEGAL_CHARACTERS_RE.sub('', st)
+    return st
+                     
 gen_dir = "/Users/niyoush/dataset_test_only/gen/"
 output_dir = "/Users/niyoush/dataset_test_only/"
-show(test_dir, gen_dir,output_dir)
+show(gen_dir,output_dir)

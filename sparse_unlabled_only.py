@@ -3,6 +3,7 @@
 # Differs from process_to_txt.py in:
 # Writes only unlabled test and the corresponding labeled reference
 # With an even distribution of data over all catalogs
+# All the italian tags are translated in English. This is critical
 
 import pandas as pd
 from pandas import read_excel
@@ -89,7 +90,7 @@ def add_features(df):
         # The possible words are separated after removing the punctuations
         desc_procs = row["description_en"].lower().translate(str.maketrans('', '', string.punctuation))
         desc_procs = separate_words(desc_procs)
-        if len(desc_procs) < 30 :
+        if len(desc_procs) < 30:
             to_delete.append(index)
         try:
             if "material" in desc_procs:
@@ -146,9 +147,9 @@ def add_features(df):
                 i = desc_procs.split().index("100%")   
                 row["material"] = "100% "+ desc_procs.split()[i+1]
             
-            if "wash" in desc_procs:
-                i = desc_procs.split().index("wash")   
-                row["wash"] = desc_procs.split()[i+1]
+            #if "wash" in desc_procs:
+            #    i = desc_procs.split().index("wash")   
+            #    row["wash"] = desc_procs.split()[i+1]
 
             #if "dimensions" in desc_procs:
             #    i = desc_procs.split().index("dimensions")   
@@ -208,7 +209,13 @@ def add_features(df):
     return df
 
 def clean_txt(st):
-    st = st.replace('Occhiali da sole','sunglasses').replace('Orologio','watch').replace("'season': 'ss'","'season': 'spring/summer'").replace("'",'').replace("{",'').replace("}",'').replace('sandali','sandals').strip()
+    d = {'Occhiali da sole':'sunglasses','Orologio':'watch',"'season': 'ss'":"'season': 'spring/summer'","'":'',"{":'',"}":'','sandali':'sandals','Sciarpe':'scarf'
+        ,'Tracolla':'shoulder bag','Infradito e Ciabatte':'flip-flops and slippers','Portafoglio':'wallet','Portadocumenti':'Document Holder','A mano': 'handbag',
+        'Sandali':'sandals','Custodia':'Cover','Zeppa':'wedge','A spalla':'Shoulder Bag','Cintura':'Belt','Pochette':'clutch','Mocassino':'Mocassin','Borse':'Bags'
+        ,'Caschi':'helmets','Da viaggio':'travel bag',"Stivale":"Boots","Stivaletto":"Boots","Giacca":"Jacket","Portachiavi":"Key holder"}
+    for k,v in d.items():
+        st = st.replace(k,v)
+    st = st.strip()
     if 'watch' in st:
         st = st.replace('strap', 'material')
     return st
