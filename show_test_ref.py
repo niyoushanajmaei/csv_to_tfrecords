@@ -3,26 +3,29 @@
 import os
 import pandas as pd
 import re
-from pandas import ExcelWriter
 from openpyxl import Workbook
 from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE
 
-def show(gen_dir,output_dir):
+def show(ref_dir,gen_dir,output_dir):
     c=0
-    columns=["tags","generated-desc"]
+    columns=["tags","generated-desc","list-desc"]
     df = pd.DataFrame(columns=columns)
     for path in os.listdir(gen_dir):
         full_path = os.path.join(gen_dir, path)
         if os.path.isfile(full_path) and re.search('product',full_path):
             with open(full_path,'r') as f:
                 gen = f.read()
+            with open(os.path.join(ref_dir, path),'r') as f:
+                ref = f.read()
             #print(ref)
             #print(gen)
+            desc = re.search('description\:.+\n',ref).group(0)
             feat = re.search('features\:.+description', gen).group(0)
             gen = re.search('description\:.+\n',gen).group(0)
             feat = clean_str(feat)
             gen = clean_str(gen)
-            df = df.append({"tags":feat,"generated-desc":gen},ignore_index=True)
+            desc = clean_str(desc)
+            df = df.append({"tags":feat,"generated-desc":gen,"list-desc":desc},ignore_index=True)
             c+=1
 
         wb= Workbook()
@@ -34,11 +37,12 @@ def show(gen_dir,output_dir):
             writer.save()
     print("writing successful")
 
-
+#remove openpyxl's illegal characters
 def clean_str(st):
     st = ILLEGAL_CHARACTERS_RE.sub('', st)
     return st
                      
+ref_dir = "/Users/niyoush/dataset_test_only/ref/"
 gen_dir = "/Users/niyoush/dataset_test_only/gen/"
 output_dir = "/Users/niyoush/dataset_test_only/"
-show(gen_dir,output_dir)
+show(ref_dir,gen_dir,output_dir)

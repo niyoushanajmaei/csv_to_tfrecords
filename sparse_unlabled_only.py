@@ -16,7 +16,7 @@ import re
 
 def read_batch(limit):
     dfs = []
-    d = "/Users/niyoush/csv_to_tfrecords/raw_data/"
+    d = "/Users/niyoush/raw_data_grifatti/A_D/"
     c=0
     for path in os.listdir(d):
         full_path = os.path.join(d, path)
@@ -60,8 +60,8 @@ def clean(df):
 
     df["description_en"] = df["description-en"]
 
-    to_keep=["brand","madein","category","subcategory","season",
-            "color","bicolors","gender","description_en","dimensions","material",
+    to_keep=["brand","name","madein","category","subcategory","season",
+            "color","bicolors","gender","neckline","sleeves","pattern","fastening","sole","pockets","description_en","dimensions","material",
             "uv","spray","anti-reflective","original_box","wash","sole","neck","sleeve"
             ,"strap","handle","fit","heel","model"]
     to_drop=[]
@@ -103,20 +103,6 @@ def add_features(df):
                     row["uv"] = True
                 if "anti-reflective" in desc_procs:
                     row["anti-reflective"] = True
-                #if "diameter" in desc_procs :
-                #    i = desc_procs.split().index("diameter")   
-                #    d = desc_procs.split()[i+1]
-                #    dim = True
-                #if "width" in desc_procs: 
-                #    i = desc_procs.split().index("width")   
-                #    w = desc_procs.split()[i+1]
-                #    dim = True
-                #if "length" in desc_procs:
-                #    i = desc_procs.split().index("length")   
-                #    l = desc_procs.split()[i+1]
-                #    dim = True
-                #if dim:
-                #    row["dimensions"] = d +", "+w +", "+l +", "
 
 
             if "eau de toilette" in desc_procs:
@@ -147,39 +133,13 @@ def add_features(df):
                 i = desc_procs.split().index("100%")   
                 row["material"] = "100% "+ desc_procs.split()[i+1]
             
-            #if "wash" in desc_procs:
-            #    i = desc_procs.split().index("wash")   
-            #    row["wash"] = desc_procs.split()[i+1]
-
-            #if "dimensions" in desc_procs:
-            #    i = desc_procs.split().index("dimensions")   
-            #    j = i+2
-            #    if "cm" in desc_procs:
-            #        j = desc_procs.split().index("cm")   
-            #    if "mm" in desc_procs:
-            #        j = desc_procs.split().index("mm")   
-            #    if "m" in desc_procs:
-            #        j = desc_procs.split().index("m")   
-            #    row["dimensions"] = desc_procs.split()[i+1:j]
-
-            #if "size" in desc_procs:
-            #    i = desc_procs.split().index("size")   
-            #    j = i+2
-            #    if "cm" in desc_procs:
-            #        j = desc_procs.split().index("cm")   
-            #    if "mm" in desc_procs:
-            #        j = desc_procs.split().index("mm")   
-            #    if "m" in desc_procs:
-            #        j = desc_procs.split().index("m")   
-            #    row["size"] = desc_procs.split()[i+1:j]
-
-            if "neck" in desc_procs:
-                    i = desc_procs.split().index("neck")   
-                    row["neck"] = desc_procs.split()[i-1]
-
-            if "sleeve" in desc_procs:
-                    i = desc_procs.split().index("sleeve")   
-                    row["sleeve"] = desc_procs.split()[i-1]
+            #if "neck" in desc_procs:
+            #        i = desc_procs.split().index("neck")   
+            #        row["neck"] = desc_procs.split()[i-1]
+#
+            #if "sleeve" in desc_procs:
+            #        i = desc_procs.split().index("sleeve")   
+            #        row["sleeve"] = desc_procs.split()[i-1]
 
             if "strap" in desc_procs:
                     i = desc_procs.split().index("strap")   
@@ -193,12 +153,6 @@ def add_features(df):
                     i = desc_procs.split().index("fit")   
                     row["fit"] = desc_procs.split()[i-1]
             
-            #if "model" in desc_procs:
-            #    i = desc_procs.split().index("model")   
-            #    j = i+2
-            #    if "cm" in desc_procs:
-            #        j = desc_procs.split().index("cm")   
-            #        row["model"] = desc_procs.split()[i+1:j]
         except:
             # Does it matter? and why does this happen?
             # yes it matters. happens because we need to add space between potential words
@@ -210,9 +164,12 @@ def add_features(df):
 
 def clean_txt(st):
     d = {'Occhiali da sole':'sunglasses','Orologio':'watch',"'season': 'ss'":"'season': 'spring/summer'","'":'',"{":'',"}":'','sandali':'sandals','Sciarpe':'scarf'
-        ,'Tracolla':'shoulder bag','Infradito e Ciabatte':'flip-flops and slippers','Portafoglio':'wallet','Portadocumenti':'Document Holder','A mano': 'handbag',
+        ,'Tracolla':'shoulder bag','Infradito':'flip-flops','Ciabatte':'slippers','Portafoglio':'wallet','Portafogli':'Wallet','Portadocumenti':'Document Holder','A mano': 'handbag',
         'Sandali':'sandals','Custodia':'Cover','Zeppa':'wedge','A spalla':'Shoulder Bag','Cintura':'Belt','Pochette':'clutch','Mocassino':'Mocassin','Borse':'Bags'
-        ,'Caschi':'helmets','Da viaggio':'travel bag',"Stivale":"Boots","Stivaletto":"Boots","Giacca":"Jacket","Portachiavi":"Key holder"}
+        ,'Caschi':'helmets','Da viaggio':'travel bag',"Stivaletto":"Boots","Stivale":"Boots","Giacca":"Jacket","Portachiavi":"Key holder","Pantaloni":"Pants","Zaini":"Back-pack"
+        ,'Maglia':'Knitwear','season: fw':'season: Fall Winter',"Felpa":"Sweatshirt","Intimo":"Underwear","Cappello":"Hat","Uomo":"Man","Donna":"Woman","Francia":"France"
+        ,"Camicia":"Shirt","Giubbotto":"Jacket","Gonna":"Skirt","Abito":"Dress","Vestito":"Dress","Tutina":"Tracksuit","Scarpe":"Shoes","Stringate":"Lace Up","Canotta":"Tank top"
+        ,'Ballerine':'Ballet Shoes',"Tuta":"Tracksuit"}
     for k,v in d.items():
         st = st.replace(k,v)
     st = st.strip()
@@ -221,18 +178,18 @@ def clean_txt(st):
     return st
 
 def write(df):
-    path ="/Users/niyoush/dataset_test_only/test/"
-    ref_path = "/Users/niyoush/dataset_test_only/ref/"
+    path ="/Users/niyoush/dataset_grifatti_test_only/test/"
+    ref_path = "/Users/niyoush/dataset_grifatti_test_only/ref/"
     c=0
     data= df.to_dict('index')
     #write the test set with and without the lables to have a reference
     for k,value in data.items():
-        value = {k:v for k,v in value.items() if v!= '' or v.strip() != ''}
+        value = {k:v for k,v in value.items() if str(v)!= '' and str(v).strip() != '' and str(v)!='nan'}
         write_dict(value,ref_path+"product"+str(c)+".txt","n")
         c+=1
     c=0
     for k,value in data.items():
-        value = {k:v for k,v in value.items() if v!= '' or v.strip() != ''}
+        value = {k:v for k,v in value.items() if str(v)!= '' and str(v).strip() != '' and str(v)!='nan'}
         write_dict(value,path+"product"+str(c)+".txt","t")
         c+=1 
     print("writing successful")
@@ -266,7 +223,7 @@ def df_stat(df):
     print(df["desc_len"].describe())
     # the third quartile of the length of the descriptions is 165
 
-limit = 20
+limit = 500
 write(read_batch(limit))
 #test_write(read_csv())
 #df_stat(read_batch())
