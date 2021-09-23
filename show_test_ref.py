@@ -1,5 +1,9 @@
 # Write the features, the list like description and the description infered by GPT-J in csv
 
+# IMPORTANT
+# THE RESULTS WRITTEN IN THE EXCEL FILE ARE ALWAYS IN THE SECOND SHEET OF THE DOCUMENT
+# THE FIRST SHEET IS EMPTY. DELETE THAT ONE.
+
 import os
 import pandas as pd
 import re
@@ -27,14 +31,18 @@ def show(ref_dir,gen_dir,output_dir):
             desc = clean_str(desc)
             df = df.append({"tags":feat,"generated-desc":gen,"list-desc":desc},ignore_index=True)
             c+=1
+            #print(f"feat: {feat} \n, gen: {gen} \n, desc: {desc}")
+            #print(df.head())
+            #break
+        
+    wb= Workbook()
+    ws=wb.active
+    with pd.ExcelWriter(output_dir + "results.xlsx", engine="openpyxl") as writer:
+        writer.book=wb
+        writer.sheets = dict((ws.title, ws) for ws in wb.worksheets)
+        df.to_excel(writer,index=False)
+        writer.save()    
 
-        wb= Workbook()
-        ws=wb.active
-        with pd.ExcelWriter(output_dir+"results.xlsx", engine="openpyxl") as writer:
-            writer.book=wb
-            writer.sheets = dict((ws.title, ws) for ws in wb.worksheets)
-            df.to_excel(writer,index=False)
-            writer.save()
     print("writing successful")
 
 #remove openpyxl's illegal characters
@@ -42,7 +50,7 @@ def clean_str(st):
     st = ILLEGAL_CHARACTERS_RE.sub('', st)
     return st
                      
-ref_dir = "/Users/niyoush/dataset_test_only/ref/"
-gen_dir = "/Users/niyoush/dataset_test_only/gen/"
-output_dir = "/Users/niyoush/dataset_test_only/"
+ref_dir = "/Users/niyoush/dataset_grifatti_test_only/ref/"
+gen_dir = "/Users/niyoush/dataset_grifatti_test_only/gen/"
+output_dir = "/Users/niyoush/dataset_grifatti_test_only/"
 show(ref_dir,gen_dir,output_dir)

@@ -10,15 +10,13 @@ import string
 import os
 import re
 
-def read_batch():
+def read_batch(read_dir):
     dfs = []
-    p =[]
-    d = "/Users/niyoush/csv_to_tfrecords/raw_data/"
     c=0
-    for path in os.listdir(d):
-        full_path = os.path.join(d, path)
+    for path in os.listdir(read_dir):
+        full_path = os.path.join(read_dir, path)
         if os.path.isfile(full_path):
-            dfs.append(read_csv(d,path))
+            dfs.append(read_csv(read_dir,path))
             c+=1
             print("read file #"+ str(c)) 
     df = pd.concat(dfs)
@@ -52,7 +50,8 @@ def clean(df):
 
     df["description_en"] = df["description-en"]
 
-    to_keep=["brand","name","madein","category","subcategory","season",
+    # I deleted name from this column.
+    to_keep=["brand","madein","category","subcategory","season",
             "color","bicolors","gender","neckline","sleeves","pattern","fastening","sole","pockets","description_en","dimensions","material",
             "uv","spray","anti-reflective","original_box","wash","sole","neck","sleeve"
             ,"strap","handle","fit","heel","model"]
@@ -160,7 +159,7 @@ def clean_txt(st):
         ,'Caschi':'helmets','Da viaggio':'travel bag',"Stivaletto":"Boots","Stivale":"Boots","Giacca":"Jacket","Portachiavi":"Key holder","Pantaloni":"Pants","Zaini":"Back-pack"
         ,'Maglia':'Knitwear','season: fw':'season: Fall Winter',"Felpa":"Sweatshirt","Intimo":"Underwear","Cappello":"Hat","Uomo":"Man","Donna":"Woman","Francia":"France"
         ,"Camicia":"Shirt","Giubbotto":"Jacket","Gonna":"Skirt","Abito":"Dress","Vestito":"Dress","Tutina":"Tracksuit","Scarpe":"Shoes","Stringate":"Lace Up","Canotta":"Tank top"
-        ,'Ballerine':'Ballet Shoes',"Tuta":"Tracksuit"}
+        ,'Ballerine':'Ballet Shoes',"Tuta":"Tracksuit","Borsa":"Bag"}
     for k,v in d.items():
         st = st.replace(k,v)
     st = st.strip()
@@ -177,7 +176,7 @@ def write_as_txt(df):
    write(test,"test")
 
 def write(df, t):
-    dir ="/Users/niyoush/dataset/"
+    dir =
     if t=="train":
         path = dir+"train_text/"
     elif t=="validate":
@@ -190,17 +189,17 @@ def write(df, t):
     if t == "test":
         #write the test set with and without the lables to have a reference
         for k,value in data.items():
-            value = {k:v for k,v in value.items() if str(v)!= '' and str(v).strip() != '' and str(v)!='nan'}
+            value = {k:v for k,v in value.items() if str(v)!= '' and str(v).strip() != '' and str(v)!='nan' and str(v)!='null'}
             write_dict(value,ref_path+"product"+str(c)+".txt","n")
             c+=1
         c=0
         for k,value in data.items():
-            value = {k:v for k,v in value.items() if str(v)!= '' and str(v).strip() != '' and str(v)!='nan'}
+            value = {k:v for k,v in value.items() if str(v)!= '' and str(v).strip() != '' and str(v)!='nan' and str(v)!='null'}
             write_dict(value,path+"product"+str(c)+".txt","t")
             c+=1 
     else :
         for k,value in data.items():
-            value = {k:v for k,v in value.items() if str(v)!= '' and str(v).strip() != '' and str(v)!='nan'}
+            value = {k:v for k,v in value.items() if str(v)!= '' and str(v).strip() != '' and str(v)!='nan' and str(v)!='null'}
             write_dict(value,path+"product"+str(c)+".txt","n")
             c+=1
     print("writing "+t+ " successful")
@@ -234,6 +233,8 @@ def df_stat(df):
     print(df["desc_len"].describe())
     # the third quartile of the length of the descriptions is 210
 
-write_as_txt(read_batch())
+read_dir = "/Users/niyoush/csv_to_tfrecords/raw_data/"
+write_dir = "/Users/niyoush/dataset/"
+write_as_txt(read_batch(read_dir),write_dir)
 #test_write(read_csv())
 #df_stat(read_batch())
