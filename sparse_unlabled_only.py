@@ -224,7 +224,7 @@ def df_stat(df):
     # the third quartile of the length of the descriptions is 165
 
 limit = 500
-read_dir = "/Users/niyoush/raw_data_grifatti/To_do/"
+read_dir = "/Users/niyoush/raw_data_grifatti/todo/"
 write_dir = "/Users/niyoush/dataset_grifatti_test_only/"
 write(read_batch(read_dir,limit),write_dir)
 #test_write(read_csv())

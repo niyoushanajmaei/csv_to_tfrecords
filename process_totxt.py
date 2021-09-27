@@ -167,23 +167,23 @@ def clean_txt(st):
         st = st.replace('strap', 'material')
     return st
 
-def write_as_txt(df):
+def write_as_txt(df,write_dir):
    # Shuffle indices and split the data Train 60%, Val 20%, Test 20%
    df = df.iloc[np.random.permutation(len(df))]
    train, validate, test = np.split(df.sample(frac=1), [int(.6*len(df)), int(.8*len(df))])
-   write(train, "train")
-   write(validate,"validate")
-   write(test,"test")
+   write(train, "train",write_dir)
+   write(validate,"validate",write_dir)
+   write(test,"test",write_dir)
 
-def write(df, t):
-    dir =
+def write(df, t,write_dir):
+    dir = write_dir
     if t=="train":
         path = dir+"train_text/"
     elif t=="validate":
         path = dir+"val_text/"
     elif t=="test":
         path = dir+"test_text/"
-    ref_path = "/Users/niyoush/dataset/test_text_ref/"
+    ref_path = dir + "test_text_ref/"
     c=0
     data= df.to_dict('index')
     if t == "test":
