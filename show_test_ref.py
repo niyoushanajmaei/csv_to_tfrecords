@@ -50,7 +50,7 @@ def clean_str(st):
     st = ILLEGAL_CHARACTERS_RE.sub('', st)
     return st
                      
-ref_dir = "/Users/niyoush/dataset_grifatti_test_only/ref/"
-gen_dir = "/Users/niyoush/dataset_grifatti_test_only/gen/"
-output_dir = "/Users/niyoush/dataset_grifatti_test_only/"
+ref_dir = "/Users/niyoush/dataset_grifatti_eval/ref/"
+gen_dir = "/Users/niyoush/dataset_grifatti_eval/gen/"
+output_dir = "/Users/niyoush/dataset_grifatti_eval/"
 show(ref_dir,gen_dir,output_dir)

@@ -1,7 +1,3 @@
-#Read the generated descriptions
-#remove "description" from the tags.
-#remove name upto madein from tags
-#append all read rows, shuffle and cut into train and validate and write features and generated columns into txt files.
 
 import pandas as pd
 from pandas import read_excel
@@ -16,6 +12,16 @@ def read_csv(path):
     #file_name = '02_batch_import_Dior.xlsx'
     #df = read_excel(Path(path,file_name), sheet_name = my_sheet,keep_default_na=False)
     df = pd.read_excel(path, sheet_name='Sheet1')
+    df.reset_index(drop=True, inplace=True)
+    return clean(df)
+
+def clean(df):
+    to_keep=["name","brand","category","color","style","material","description"]
+    to_drop=[]
+    for col in df.columns:
+        if col not in to_keep:
+            to_drop.append(col)
+    df.drop(to_drop, inplace=True, axis=1)
     return df
 
 def write_as_txt(df,write_dir):
@@ -63,36 +69,28 @@ def write(df, t,write_dir):
 # when type is "t" for test
 # {"tag1" : "value1", "tag2": "value2", ....} \n description: 
 def write_dict(dict, path, type):
-    feat,desc,gen = get_data(dict) # only write the features and the generated descriptions
-    with open(path, 'w') as f:
-        txt = feat + "\n"
-        if type == "n":
-            if txt[-1] != '\n':
-                txt+='\n'
-            txt += gen + "###\n"
-        print(txt,file =f)
+    feat,desc = get_data(dict) # only write the features and the generated descriptions
+    if (desc):
+        with open(path, 'w') as f:
+            txt = str(feat) + "\n"
+            if type == "n":
+                if txt[-1] != '\n':
+                    txt+='\n'
+                txt += desc + "\n###\n"
+            print(txt,file =f)
 
 def get_data(dict):
-    feat = dict.pop("tags", None)
-    desc = dict.pop("list-desc", None)
-    gen = dict.pop("generated-desc", None)
-    feat = feat.replace("description","")
-    if 'name' in feat:
-        i = feat.split().index("name:")
-        j = feat.split().index("madein:")
-        remove=''
-        for st in feat.split()[i:j]: 
-            remove+=st +' '
-        feat = feat.replace(remove,'')
-    return feat,desc,gen
+    feat = dict
+    desc = dict.pop("description", None)
+    return feat,desc
 
 def df_stat(df):
     df["desc_len"] =df['description_en'].apply(lambda x: len(x))
     print(df["desc_len"].describe())
     # the third quartile of the length of the descriptions is 210
 
-read_dir = "/Users/niyoush/dataset_grifatti_eval/gen_TOP5_TEMP8_3_accepted.xlsx"
-write_dir = "/Users/niyoush/dataset_grifatti_eval/"
+read_dir = "/Users/niyoush/telablu/dataset.xlsx"
+write_dir = "/Users/niyoush/telablu/"
 write_as_txt(read_csv(read_dir),write_dir)
 #test_write(read_csv())
 #df_stat(read_batch())
