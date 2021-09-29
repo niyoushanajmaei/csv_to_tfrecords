@@ -1,9 +1,8 @@
-# Used to check inference of a pretrained model WITHOUT finetuning
 # Produces a labled set for reference and an unlabled test set
 # Differs from process_to_txt.py in:
 # Writes only unlabled test and the corresponding labeled reference
 # With an even distribution of data over all catalogs
-# All the italian tags are translated in English. This is critical
+# All the italian tags are translated to English which was critical.
 
 import pandas as pd
 from pandas import read_excel
@@ -59,7 +58,7 @@ def clean(df):
 
     df["description_en"] = df["description-en"]
 
-    to_keep=["brand","madein","category","subcategory","season",
+    to_keep=["brand","code","madein","category","subcategory","season",
             "color","bicolors","gender","neckline","sleeves","pattern","fastening","sole","pockets","description_en","dimensions","material",
             "uv","spray","anti-reflective","original_box","wash","sole","neck","sleeve"
             ,"strap","handle","fit","heel","model"]
@@ -201,8 +200,12 @@ def write(df,write_dir):
 # {"tag1" : "value1", "tag2": "value2", ....} \n description: 
 def write_dict(dict, path, type):
     desc = dict.pop("description_en", None)
+    code = dict.pop("code",None)
     with open(path, 'w') as f:
-        txt = f"features: {str(dict)} \ndescription: "
+        txt = ""
+        if type == "n":
+            txt += f"code: {code}\n"
+        txt += f"features: {str(dict)} \ndescription: "
         txt = clean_txt(txt)
         if type == "n":
             txt += desc + "\n###\n"
@@ -224,8 +227,8 @@ def df_stat(df):
     # the third quartile of the length of the descriptions is 165
 
 limit = 500
-read_dir = "/Users/niyoush/telablu/"
-write_dir = "/Users/niyoush/telablu/"
+read_dir = "/Users/niyoush/raw_data_grifatti/todo/"
+write_dir = "/Users/niyoush/dataset_grifatti_eval/"
 write(read_batch(read_dir,limit),write_dir)
 #test_write(read_csv())
 #df_stat(read_batch())

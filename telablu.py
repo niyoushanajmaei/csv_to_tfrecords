@@ -72,16 +72,17 @@ def write_dict(dict, path, type):
     feat,desc = get_data(dict) # only write the features and the generated descriptions
     if (desc):
         with open(path, 'w') as f:
-            txt = str(feat) + "\n"
+            txt = feat + "\n"
             if type == "n":
                 if txt[-1] != '\n':
                     txt+='\n'
-                txt += desc + "\n###\n"
+                txt += "description: " + desc + "\n###\n"
             print(txt,file =f)
 
 def get_data(dict):
     feat = dict
     desc = dict.pop("description", None)
+    feat = str(feat).replace('{','').replace('}','').replace("'",'')
     return feat,desc
 
 def df_stat(df):
