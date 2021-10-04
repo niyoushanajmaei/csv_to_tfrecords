@@ -8,10 +8,12 @@ def read(dir):
     # reading the JSON data using json.load()
     with open(dir) as f:
         dict = json.load(f)
-    for k,d in dict.items():
-        for dd in d:
-            dfs.append(pd.DataFrame(dd, index =[0]))
-    df = pd.concat(dfs)
+    #for k,d in dict.items():
+    #    for dd in d:
+    #        dfs.append(pd.DataFrame(dd, index =[0]))
+    df = pd.DataFrame(dict)
+    #print(df.head())
+    #df = pd.concat(dfs)
     return df
 
 def write(df,output_dir):
@@ -26,6 +28,6 @@ def write(df,output_dir):
     print("writing successful")
 
 
-read_dir = "telablu_export.json"
-output_dir = "/Users/niyoush/telablu/"
+read_dir = "/Users/niyoush/data_world/flipkart_fashion_products_dataset.json"
+output_dir = "/Users/niyoush/data_world/"
 write(read(read_dir),output_dir)
