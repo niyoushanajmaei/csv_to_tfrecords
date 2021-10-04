@@ -13,6 +13,8 @@ import string
 import os
 import re
 
+
+
 def read_batch(read_dir,limit):
     dfs = []
     c=0
@@ -58,8 +60,9 @@ def clean(df):
 
     df["description_en"] = df["description-en"]
 
-    to_keep=["brand","code","madein","category","subcategory","season",
-            "color","bicolors","gender","neckline","sleeves","pattern","fastening","sole","pockets","description_en","dimensions","material",
+    #name and category were removed.
+    to_keep=["brand","code","madein","subcategory","season",
+            "color","bicolors","gender","neckline","neck_shirt","sleeves","pattern","fastening","sole","pockets","description_en","dimensions","material",
             "uv","spray","anti-reflective","original_box","wash","sole","neck","sleeve"
             ,"strap","handle","fit","heel","model"]
     to_drop=[]
@@ -70,6 +73,7 @@ def clean(df):
     df.drop(df[df.description_en==""].index, inplace=True)
     df["description_en"] = df["description_en"].apply(erase_tags).apply(separate_words).apply(remove_spaces)
     df = add_features(df)
+
     return df
 
 def erase_tags(st):
@@ -83,6 +87,7 @@ def remove_spaces(st):
 
 def add_features(df):
     to_delete=[]
+    materials = []
     for index, row in df.iterrows():
         # A version of the description, all low case, all punctuations removed
         # The possible words are separated after removing the punctuations
@@ -91,10 +96,16 @@ def add_features(df):
         if len(desc_procs) < 30:
             to_delete.append(index)
         try:
-            if "material" in desc_procs:
-                i = desc_procs.split().index("material")   
-                row["material"] = desc_procs.split()[i+1]
+            #if "material" in desc_procs:
+            #    i = desc_procs.split().index("material")   
+            #    row["material"] = desc_procs.split()[i+1]
             
+            material = add_material(desc_procs)
+            materials.append(str(material))
+            if (material == "[]") :
+                to_delete.append(index)
+            #print(material)
+
             if "sunglasses" in desc_procs:
                 dim = False
                 if "uv" in desc_procs or "protection" in desc_procs:
@@ -156,9 +167,21 @@ def add_features(df):
             # yes it matters. happens because we need to add space between potential words
             # These instances will be deleted from the dataset
             to_delete.append(index)
+    df["material"] = materials
     df = df.drop(to_delete,axis=0)
+    #print(df.material.to_string(index = False))
     print(f"deleted {len(to_delete)} rows. remaining: {len(df.index)}")
     return df
+
+def add_material(desc):
+    all_materials = ["canvas","cashmere","chenille","chiffon","cotton","crêpe","crepe","damask","georgette","gingham","jersey",
+                    "lace","leather","linen","wool","modal","muslin","organza","polyester","satin","silk","spandex","suede","taffeta",
+                    "toile","tweed","twill","velvet","viscose","synthetic matrials"]
+    materials =  []
+    for m in all_materials:
+        if m in desc:
+            materials.append(m)
+    return materials
 
 def clean_txt(st):
     d = {'Occhiali da sole':'sunglasses','Orologio':'watch',"'season': 'ss'":"'season': 'spring/summer'","'":'',"{":'',"}":'','sandali':'sandals','Sciarpe':'scarf'
@@ -174,21 +197,25 @@ def clean_txt(st):
     if 'watch' in st:
         st = st.replace('strap', 'material')
     st = st.replace("slip on","")
+    st = st.replace('"','')
+    st = st.replace('[','')
+    st = st.replace(']','')
     return st
 
 def write(df,write_dir):
     path = write_dir + "test/"
     ref_path = write_dir + "ref/"
     c=0
+    #print(df.material.to_string(index = False))
     data= df.to_dict('index')
     #write the test set with and without the lables to have a reference
     for k,value in data.items():
-        value = {k:v for k,v in value.items() if str(v)!= '' and str(v).strip() != '' and str(v)!='nan' and str(v)!='null'}
+        value = {k:v for k,v in value.items() if str(v)!= '' and str(v).strip() != '' and str(v)!='nan' and str(v)!='null' and str(v)!= '[]'}
         write_dict(value,ref_path+"product"+str(c)+".txt","n")
         c+=1
     c=0
     for k,value in data.items():
-        value = {k:v for k,v in value.items() if str(v)!= '' and str(v).strip() != '' and str(v)!='nan' and str(v)!='null'}
+        value = {k:v for k,v in value.items() if str(v)!= '' and str(v).strip() != '' and str(v)!='nan' and str(v)!='null'and str(v)!= '[]'}
         write_dict(value,path+"product"+str(c)+".txt","t")
         c+=1 
     print("writing successful")
@@ -226,9 +253,9 @@ def df_stat(df):
     print(df["desc_len"].describe())
     # the third quartile of the length of the descriptions is 165
 
-limit = 500
-read_dir = "/Users/niyoush/raw_data_grifatti/todo/"
-write_dir = "/Users/niyoush/dataset_grifatti_eval/"
+limit = 10
+read_dir = "/Users/niyoush/raw_data_grifatti/Done/"
+write_dir = "/Users/niyoush/griffati_with_material/"
 write(read_batch(read_dir,limit),write_dir)
 #test_write(read_csv())
 #df_stat(read_batch())
