@@ -200,6 +200,7 @@ def clean_txt(st):
     st = st.replace('"','')
     st = st.replace('[','')
     st = st.replace(']','')
+    st = st.replace("'",'')
     return st
 
 def write(df,write_dir):

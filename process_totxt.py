@@ -9,6 +9,7 @@ import lxml.html
 import string
 import os
 import re
+import utils
 
 def read_batch(read_dir):
     dfs = []
@@ -61,18 +62,9 @@ def clean(df):
             to_drop.append(col)
     df.drop(to_drop, inplace=True, axis=1)
     df.drop(df[df.description_en==""].index, inplace=True)
-    df["description_en"] = df["description_en"].apply(erase_tags).apply(separate_words).apply(remove_spaces)
+    df["description_en"] = df["description_en"].apply(utils.remove_tags)
     df = add_features(df)
     return df
-
-def erase_tags(st):
-    return lxml.html.fromstring(st).text_content()
-
-def separate_words(st):
-    return re.sub(r"(\w)([A-Z])", r"\1 \2", st)
-
-def remove_spaces(st):
-    return re.sub(r"\s+", " ",st)
 
 def add_features(df):
     to_delete=[]

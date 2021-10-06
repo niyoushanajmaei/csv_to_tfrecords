@@ -1,22 +1,30 @@
 
 import pandas as pd
 from openpyxl import Workbook
+import lxml.html
+import re
+import utils
 
-def read_csv():
-    my_sheet = 'BatchImport' 
-    file_name = '09_batch_import_Versace_Jeans.xlsx'
-    df = read_excel(Path('output',file_name), sheet_name = my_sheet,keep_default_na=False)
-    cleaned = clean(df)
-    data= cleaned.to_dict('index') #each value in data is one instant of a product. (tags and description)
-    return data
+def read_csv(read_dir):
+    df = pd.read_csv(read_dir)
+    df = clean(df)
+    return df
 
-def write(df,output_dir):
-    wb= Workbook()
-    ws=wb.active
-    with pd.ExcelWriter(output_dir + "dataset.xlsx", engine="openpyxl") as writer:
-        writer.book=wb
-        writer.sheets = dict((ws.title, ws) for ws in wb.worksheets)
-        df.to_excel(writer,index=False)
-        writer.save()    
+def clean(df):
+    df["product_descrition"] = df["product_descrition"].apply(utils.remove_tags)
+    #df = ebay_clean(df)
+    return df
 
-    print("writing successful")
+def ebay_clean(df):
+    #only keep the fashio products which have the product information in the description column.
+    index_to_keep = []
+    for index, row in df.iterrows():
+        if "Clothes, Shoes & Accessories" in row["breadcrumbs"] :
+            index_to_keep.append(index)
+    df = df.loc[index_to_keep]
+    return df
+        
+
+read_dir = "/Users/niyoush/data_world/home_sdf.csv"
+output_dir = "/Users/niyoush/data_world/clean_xlsx/"
+utils.write(read_csv(read_dir),output_dir)
