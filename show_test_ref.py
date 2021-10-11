@@ -25,12 +25,12 @@ def show(ref_dir,gen_dir,output_dir):
             #print(gen)
             code = re.search('code:.+\n',ref).group(0)
             desc = re.search('description\:.+\n',ref).group(0)
-            feat = re.search('features\:.+description', gen).group(0)
-            gen = re.search('description:.+\n',gen).group(0)
-            #if (re.search('description\:.+?###',gen,re.DOTALL)):
-            #    gen = re.search('description\:.+?###',gen,re.DOTALL).group(0)
-            #else:
-            #    gen = re.search('description\:.+$',gen,re.DOTALL).group(0)
+            feat = re.search('features\:.+\n', gen).group(0)
+            #gen = re.search('description:.+\n',gen).group(0)
+            if (re.search('description\:.+?###',gen,re.DOTALL)):
+                gen = re.search('description\:.+?###',gen,re.DOTALL).group(0)
+            else:
+                gen = re.search('description\:.+$',gen,re.DOTALL).group(0)
             feat = clean_str(feat)
             gen = clean_str(gen)
             desc = clean_str(desc)
@@ -59,7 +59,7 @@ def clean_str(st):
     st = ILLEGAL_CHARACTERS_RE.sub('', st)
     return st
                      
-ref_dir = "/Users/niyoush/griffati_with_material/ref/"
-gen_dir = "/Users/niyoush/griffati_with_material/gen/"
-output_dir = "/Users/niyoush/griffati_with_material/"
+ref_dir = "/Users/niyoush/test_for_flip/ref/"
+gen_dir = "/Users/niyoush/test_for_flip/gen/"
+output_dir = "/Users/niyoush/test_for_flip/"
 show(ref_dir,gen_dir,output_dir)

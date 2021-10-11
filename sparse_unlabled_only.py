@@ -193,7 +193,6 @@ def clean_txt(st):
         ,'Ballerine':'Ballet Shoes',"Tuta":"Tracksuit","Borsa":"Bag","Sciarpa":"Scarf"}
     for k,v in d.items():
         st = st.replace(k,v)
-    st = st.strip()
     if 'watch' in st:
         st = st.replace('strap', 'material')
     st = st.replace("slip on","")
@@ -201,6 +200,7 @@ def clean_txt(st):
     st = st.replace('[','')
     st = st.replace(']','')
     st = st.replace("'",'')
+    st = st.strip()
     return st
 
 def write(df,write_dir):
@@ -235,9 +235,11 @@ def write_dict(dict, path, type):
             txt += f"code: {code}\n"
         txt += f"features: {str(dict)} \ndescription: "
         txt = clean_txt(txt)
+        if type != 'n':
+            print(txt,file =f,end = '')
         if type == "n":
             txt += desc + "\n###\n"
-        print(txt,file =f)
+            print(txt,file =f)
 
 def test_write(df):
     dir ="/Users/niyoush/dataset_test_only/test/"
@@ -254,9 +256,9 @@ def df_stat(df):
     print(df["desc_len"].describe())
     # the third quartile of the length of the descriptions is 165
 
-limit = 10
-read_dir = "/Users/niyoush/raw_data_grifatti/Done/"
-write_dir = "/Users/niyoush/griffati_with_material/"
+limit = 200
+read_dir = "/Users/niyoush/raw_data_grifatti/todo/"
+write_dir = "/Users/niyoush/test_for_flip/"
 write(read_batch(read_dir,limit),write_dir)
 #test_write(read_csv())
 #df_stat(read_batch())
